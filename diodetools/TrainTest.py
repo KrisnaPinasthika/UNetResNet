@@ -50,9 +50,6 @@ def train(
     device,
     save_model=False,
     save_train_state=False,
-    reg_type=None,
-    reg_lambda=None,
-    reg_backbone=None,
 ):
     model.train()
     total_batch = loader.__len__()
@@ -93,30 +90,7 @@ def train(
                 labels, outputs, max_val=1.0, kernel_size=7, k1=0.01, k2=0.03
             )
 
-            reg = 0
-            if reg_type == "l1":
-                if reg_backbone == "dense":
-                    block1 = model.encoder.model.features.denseblock1.parameters()
-                    block2 = model.encoder.model.features.denseblock2.parameters()
-                    for param in block1:
-                        reg += torch.sum(torch.abs(param))
-
-                    for param in block2:
-                        reg += torch.sum(torch.abs(param))
-
-            elif reg_type == "l2":
-                if reg_backbone == "dense":
-                    block1 = model.encoder.model.features.denseblock1.parameters()
-                    block2 = model.encoder.model.features.denseblock2.parameters()
-                    for param in block1:
-                        reg += torch.sum(param**2)
-
-                    for param in block2:
-                        reg += torch.sum(param**2)
-
-            reg = reg * reg_lambda
-
-            loss = loss_1 + loss_2 + loss_3 + reg
+            loss = loss_1 + loss_2 + loss_3
 
             loss.backward()
             optimizer.step()
